@@ -1,20 +1,15 @@
-import {
-  Card,
-  CardContent,
-  CardMedia,
-  Container,
-  Grid,
-  TextField,
-  Typography,
-  CardActionArea,
+import {Card, CardContent, CardMedia, Container, Grid, TextField, Typography, CardActionArea,
 } from "@mui/material";
 
 import { useState, useEffect } from "react";
 import emptyIcon from "../../assets/images/empty-icon.svg"
+import loadingIcon from "../../assets/images/infinite-spinner.svg"
+import { Link } from "react-router-dom";
 
 export default function Recipes() {
   const [recipes, setRecipes] = useState([]);
   const [keyword, setKeyword] = useState("");
+  const [loading, setLoading] = useState(false);
 
 
   const getRecipes = () => {
@@ -23,15 +18,15 @@ export default function Recipes() {
     url.searchParams.append("apiKey", process.env.REACT_APP_SPOONACULAR_API_KEY);
     url.searchParams.append("query", keyword);
     //fetch recipes from API
-    fetch(url)
-      .then((response) => response.json())
+    fetch(url).then((response) => response.json())
       .then((data) => {
        setRecipes(data.results)
         // console.log(data);
       })
       .catch((error) => {
         console.log(error);
-      });
+      })
+      .finally(() => setLoading(false));
   };
 
   useEffect(getRecipes, [keyword]);
@@ -46,7 +41,7 @@ export default function Recipes() {
         onKeyDown={event => event.key === "Enter" && setKeyword(event.target.value)}
       />
       <Grid sx={{ mt: "1rem" }} container spacing={3}>
-        {recipes.length > 0 ? recipes.map(recipe => (<Grid key={recipe.id} item xs={4}>
+        {loading ? <img src={loadingIcon} width="50%" /> : recipes.length > 0 ? recipes.map(recipe => (<Grid key={recipe.id} item xs={4}>
           <Card sx={{ maxWidth: 345, height: "100%"}}>
             <CardActionArea sx={{height:'100%'}}>
               <CardMedia
@@ -56,9 +51,9 @@ export default function Recipes() {
                 alt={recipe.title}
               />
               <CardContent sx={{height: "100%"}}>
-                <Typography gutterBottom variant="h5" component="div">
+                <Link><Typography gutterBottom variant="h5" component="div">
                  {recipe.title}
-                </Typography>
+                </Typography></Link>
               </CardContent>
             </CardActionArea>
           </Card>
